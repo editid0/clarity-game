@@ -78,15 +78,6 @@ import { v4 as uuidv4 } from 'uuid';
 //   },
 // });
 
-export const getGames = action({
-	args: {
-		game_id: v.string()
-	},
-	handler: async (ctx, args) => {
-		console.log(ctx, args)
-	},
-})
-
 export const createGame = mutation({
 	args: {
 		rounds: v.number(),
@@ -95,12 +86,31 @@ export const createGame = mutation({
 	handler: async (ctx, args) => {
 		// Generate a uuid
 		const game_id = uuidv4();
+		// Generate a share code
+		let code = ''
+		const digits = '0123456789'
+		for (let i = 0; i < 6; i++) {
+			const random_index = Math.floor(Math.random() * digits.length)
+			code += digits[random_index]
+		}
+		const max = 10; // Set this to the number of available images
+		const numbers = Array.from({ length: max }, (_, i) => i + 1)
+		for (let i = numbers.length; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[numbers[i], numbers[j]] = [numbers[j], numbers[i]]
+		}
+		const images = numbers.slice(0, args.rounds)
 		await ctx.db.insert("games", {
 			game_id: game_id,
 			rounds: args.rounds,
 			time_per_round: args.time_per_round,
 			player_ids: [],
 			creator_id: '',
+			share_code: code,
+			images: images,
+			status: 0,
+			answers: [],
+			step: 0
 		})
 		return game_id;
 	}
@@ -158,5 +168,25 @@ export const addUserToGame = mutation({
 			await ctx.db.patch(game._id, { player_ids: new_players })
 		}
 		return true;
+	}
+})
+
+export const getGameData = query({
+	args: {
+		game_id: v.string(),
+	},
+	handler: async (ctx, args) => {
+		const data = await ctx.db.query('games').filter((q) => q.eq(q.field('game_id'), args.game_id)).take(1);
+		return data;
+	}
+})
+
+export const userIdToName = query({
+	args: {
+		user_id: v.string(),
+	},
+	handler: async (ctx, args) => {
+		const data = await ctx.db.query('players').filter((q) => q.eq(q.field('player_id'), args.user_id)).take(1);
+		return data;
 	}
 })

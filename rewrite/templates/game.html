@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clarity - In game</title>
+    <link rel="stylesheet" type="text/css" href="/public/out.css" />
+    <script src="https://cdn.socket.io/4.8.1/socket.io.min.js"
+        integrity="sha384-mkQ3/7FUtcGyoppY6bz/PORYoGqOl7/aSUMn2ymDOJcapfS6PHqxhRTMh1RR0Q6+"
+        crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <h1>Testing</h1>
+</body>
+<script>
+    const game_data_str = `{{ game| tojson | safe}}`
+    const socket = io();
+    var connected = false;
+    var game_data = JSON.parse(game_data_str)
+    socket.on('connect', function () {
+        socket.emit('join', {
+            game: game_data.id,
+            user: getCookie('user_id')
+        })
+    })
+    socket.on('message', function (data) {
+        console.log(data)
+    })
+
+    function getCookie(cname) {
+        let name = cname + "=";
+        let decodedCookie = decodeURIComponent(document.cookie);
+        let ca = decodedCookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return "";
+    }
+</script>
+
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clarity</title>
+    <link rel="stylesheet" type="text/css" href="/public/out.css" />
+</head>
+
+<!-- <body class="dark:bg-neutral-950 dark:text-white"> -->
+
+<body class="">
+    <noscript>
+        <div
+            class="z-50 absolute top-0 left-0 flex items-center justify-center w-full h-full bg-white pointer-events-none">
+            <p class="text-red-500 text-9xl">Javascript is required for this site.</p>
+        </div>
+    </noscript>
+    <div class="text-center mt-4 flex flex-col gap-2 w-1/4 min-w-[5cm] max-w-[30cm] mx-auto">
+        <h1 class="text-5xl font-semibold">Clarity</h1>
+        <p class="text-xl">Click the button below to start a game, or scroll down to learn how to play.</p>
+        <a class="bg-neutral-800 text-white px-3 py-2 rounded-md" href="/start">Start game</a>
+    </div>
+</body>
+
+<script>
+    function setCookie(cname, cvalue, exdays) {
+        const d = new Date();
+        d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+        let expires = "expires=" + d.toUTCString();
+        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    } //https://www.w3schools.com/js/js_cookies.asp
+    function getCookie(cname) {
+        let name = cname + "=";
+        let decodedCookie = decodeURIComponent(document.cookie);
+        let ca = decodedCookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return "";
+    } //https://www.w3schools.com/js/js_cookies.asp
+
+    if (!getCookie('user_id')) {
+        const id = crypto.randomUUID();
+        setCookie('user_id', id, 7)
+    }
+</script>
+
+</html>
