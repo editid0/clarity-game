@@ -43,6 +43,7 @@
         <input type="text" name="rename" id="renamer" placeholder="Change name?"
             class="dark:bg-neutral-800 p-2 rounded-md">
         <p>Press enter to submit new name</p>
+        <p id="streak"></p>
     </div>
     <div id="playerlist"
         class="bg-neutral-200 dark:bg-neutral-800 rounded-xl w-1/4 min-w-[5cm] max-w-[30cm] h-fit mx-auto p-4 *:bg-neutral-300 dark:*:bg-neutral-700 *:m-2 *:p-2 *:rounded-lg *:text-center *:w-full flex flex-col items-center justify-center">
@@ -65,6 +66,7 @@
     const chatbox = document.getElementById('chatbox')
     const chatinput = document.getElementById('chatinput')
     const notif = document.getElementById('notif')
+    const streak = document.getElementById('streak');
 
     const game_data_str = `{{ game | tojson | safe}}`
     var time_left_notif = 0;
@@ -82,10 +84,11 @@
             "text": "Communicate using this chat, maybe don't give hints?"
         },
     ];
-    renderChats();
-
+    var current_streak = 0;
     var current_round = 1;
     var current_step = 0;
+
+    renderChats();
 
     const blurlevel = {
         0: 4,
@@ -123,6 +126,11 @@
             socket.emit('rename', { 'id': getCookie('user_id'), 'game': game_data.id, name: e.target.value })
         }
     })
+
+    function updateStreak() {
+        streak.innerText = 'Current streak: ' + current_streak;
+    }
+    updateStreak();
 
     function importUsersToUserMap() {
         var players = game_data.players;
@@ -273,8 +281,11 @@
             if (window['current_round'] > game_data.rounds) {
                 goToScores();
             }
+            if (current_step === 0) {
+                current_streak++;
+                updateStreak();
+            }
             current_step = 0;
-            console.log('correct')
             showImage();
         } else {
             current_step++;
@@ -291,6 +302,8 @@
                 last_letter = data.end;
             }
             showImage();
+            current_streak = 0;
+            updateStreak();
         }
     })
 
