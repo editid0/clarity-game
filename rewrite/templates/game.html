@@ -15,6 +15,7 @@
     <h1 class="text-5xl font-semibold text-center mt-4">Clarity</h1>
     <p class="text-xl text-center my-2">The game can be started once there are between 2 and 10 players.</p>
     <p class="text-center mb-2">Share code: <span id="share" class="font-mono text-xl"></span></p>
+    <input type="text" name="rename" id="renamer" placeholder="Change name?">
     <div id="playerlist"
         class="bg-neutral-200 rounded-xl w-1/4 min-w-[5cm] max-w-[30cm] h-fit mx-auto p-4 *:bg-neutral-300 *:m-2 *:p-2 *:rounded-lg *:text-center *:w-full flex flex-col items-center justify-center">
     </div>
@@ -31,6 +32,7 @@
     const share = document.getElementById('share')
     const start = document.getElementById('start')
     const gameplay = document.getElementById('gameplay')
+    const renamer = document.getElementById('renamer')
 
     const game_data_str = `{{ game| tojson | safe}}`
     var game_data = JSON.parse(game_data_str)
@@ -39,6 +41,10 @@
     const socket = io();
     var connected = false;
     var user_map = {};
+
+    var current_round = 1;
+    var current_step = 0;
+
     const blurlevel = {
         0: 4,
         1: 3,
@@ -53,19 +59,29 @@
         }, 500);
     }
 
+    renamer.addEventListener('keydown', function (e) {
+        if (e.code === 'Enter') {
+            socket.emit('rename', { 'id': getCookie('user_id'), 'game': game_data.id, name: e.target.value })
+        }
+    })
     function importUsersToUserMap() {
         var players = game_data.players;
         for (const pl of players) {
             user_map[pl] = 'New User'
         }
+        for (const pl of players) {
+            socket.emit('whois', { 'id': pl })
+        }
     }
-    function showImage(im, step) {
+    function showImage() {
+        gameplay.innerHTML = ''
+        const im = game_data.images[current_round - 1]
         // Hide share code, and start button
         share.innerHTML = ''
         start.style.display = 'none'
         // Add image to gameplay
         var img = document.createElement('img')
-        img.src = '/public/im/' + im + '-' + blurlevel[step] + '.jpg'
+        img.src = '/public/im/' + im + '-' + blurlevel[current_step] + '.jpg'
         gameplay.appendChild(img)
         // Show letter count
         var div = document.createElement('div')
@@ -78,16 +94,21 @@
             div.appendChild(p);
         }
         gameplay.appendChild(div)
+        var inputdiv = document.createElement('div')
+        inputdiv.classList.add('w-full', 'flex', 'items-center', 'justify-center')
         var input = document.createElement('input')
         input.type = 'text'
         input.id = 'guess'
-        input.classList.add('bg-neutral-900', 'text-white', 'w-1/4', 'mx-auto')
+        input.classList.add('bg-neutral-900', 'text-white', 'w-1/4', 'mx-auto', 'p-4')
+        input.placeholder = 'Guess?'
         input.onkeydown = (e) => {
             if (e.code === "Enter") {
-                socket.emit('guess', { 'text': e.target.value, 'user': getCookie('user_id'), 'game': game_data.id })
+                console.log({ 'text': e.target.value, 'user': getCookie('user_id'), 'game': game_data.id })
+                socket.emit('guess', { 'text': e.target.value, 'user': getCookie('user_id'), 'game': game_data.id, 'round': current_round, 'step': current_step })
             }
         }
-        gameplay.appendChild(input);
+        inputdiv.appendChild(input);
+        gameplay.appendChild(inputdiv);
     }
     importUsersToUserMap();
 
@@ -115,6 +136,7 @@
     })
 
     socket.on('message', function (data) {
+        console.log(data)
     })
 
     function startGame() {
@@ -147,6 +169,30 @@
         game_data = data;
         showImage(game_data.images[game_data.status - 1], game_data.step)
     })
+    socket.on('guess_response', function (data) {
+        if (data.user !== getCookie('user_id')) {
+            return
+        }
+        if (data.correct) {
+            window['current_round']++;
+            if (window['current_round'] > game_data.rounds) {
+                goToScores();
+            }
+            current_step = 0;
+            console.log('correct')
+            showImage();
+        } else {
+            current_step++;
+            if (current_step > 4) {
+                current_step = 0;
+                current_round++;
+                if (window['current_round'] > game_data.rounds) {
+                    goToScores();
+                }
+            }
+            showImage();
+        }
+    })
 
     function getCookie(cname) {
         let name = cname + "=";
@@ -162,6 +208,9 @@
             }
         }
         return "";
+    }
+    function goToScores() {
+        window.location.href = `/game/${game_data.id}/scores`
     }
 </script>
 

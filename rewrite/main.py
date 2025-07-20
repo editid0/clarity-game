@@ -150,11 +150,28 @@ def user_guess(data):
     text = data.get("text", "")
     user = data.get("user")
     game = data.get("game")
+    round = data.get("round")
+    step = data.get("step")
+    points = 5 - step
     gm = find_game(game)
     answers = {"1": "duck", "2": "forest", "3": "beach", "4": "plane"}
     text = text.lower()
     text = text[:15]
-    print(gm)
+    print(step, text, round, gm["images"])
+    current_image = gm["images"][round - 1]
+    correct_answer = answers[str(current_image)]
+    print(correct_answer)
+    if text != correct_answer:
+        emit("guess_response", {"correct": False, "user": user}, to=game)
+        print("bad")
+    else:
+        emit("guess_response", {"correct": True, "user": user}, to=game)
+        index = games.index(gm)
+        scores = games[index]["scores"]
+        if not scores.get(user):
+            scores[user] = points
+        else:
+            scores[user] += points
 
 
 if __name__ == "__main__":
