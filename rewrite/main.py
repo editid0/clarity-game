@@ -257,4 +257,6 @@ def on_chat(data):
 
 
 if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=6970, debug=True)
+    socketio.run(
+        app, host="0.0.0.0", port=6970, debug=False, allow_unsafe_werkzeug=True
+    )
