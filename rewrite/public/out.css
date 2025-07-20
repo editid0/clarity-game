@@ -12,6 +12,7 @@
     --color-neutral-200: oklch(92.2% 0 0);
     --color-neutral-300: oklch(87% 0 0);
     --color-neutral-500: oklch(55.6% 0 0);
+    --color-neutral-700: oklch(37.1% 0 0);
     --color-neutral-800: oklch(26.9% 0 0);
     --color-neutral-900: oklch(20.5% 0 0);
     --color-neutral-950: oklch(14.5% 0 0);
@@ -435,6 +436,16 @@
       background-color: var(--color-neutral-100);
     }
   }
+  .dark\:bg-neutral-700 {
+    @media (prefers-color-scheme: dark) {
+      background-color: var(--color-neutral-700);
+    }
+  }
+  .dark\:bg-neutral-800 {
+    @media (prefers-color-scheme: dark) {
+      background-color: var(--color-neutral-800);
+    }
+  }
   .dark\:bg-neutral-950 {
     @media (prefers-color-scheme: dark) {
       background-color: var(--color-neutral-950);
@@ -448,6 +459,20 @@
   .dark\:text-white {
     @media (prefers-color-scheme: dark) {
       color: var(--color-white);
+    }
+  }
+  .dark\:\*\:bg-neutral-700 {
+    @media (prefers-color-scheme: dark) {
+      :is(& > *) {
+        background-color: var(--color-neutral-700);
+      }
+    }
+  }
+  .dark\:\*\:bg-neutral-800 {
+    @media (prefers-color-scheme: dark) {
+      :is(& > *) {
+        background-color: var(--color-neutral-800);
+      }
     }
   }
 }

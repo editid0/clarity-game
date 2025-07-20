@@ -24,6 +24,8 @@ letter_map = {
     "4": 5,
 }
 
+URL = os.getenv("URL")
+
 
 def find_game(game_id) -> dict:
     game_id = str(game_id)
@@ -46,9 +48,10 @@ def start():
         return "Error", 403
     params = dict(request.args) or {}
     rounds = int(params.get("rounds", 3))
-    tbr = int(params.get("tbr", 30))
     images = random.sample(range(1, 5), rounds)
-    share_code = "".join(random.choices(string.digits, k=6))
+    share_code_1 = "".join(random.choices(string.digits[1:], k=1))
+    share_code_5 = "".join(random.choices(string.digits, k=5))
+    share_code = share_code_1 + share_code_5
     game_obj = {
         "creator": user,
         "players": [
@@ -62,7 +65,6 @@ def start():
         "status": 0,
         "step": 0,
         "rounds": rounds,
-        "tbr": tbr,
         "letter_map": letter_map,
     }
     games.append(game_obj)
@@ -105,7 +107,7 @@ def game_page(code):
         return "Error", 403
     if user not in game["players"]:
         return "Not in this game", 403
-    return render_template("game.html", game=game)
+    return render_template("game.html", game=game, URL=URL)
 
 
 @app.route("/game/<uuid:code>/scores")
