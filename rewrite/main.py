@@ -61,7 +61,7 @@ def start():
     cookies = dict(request.cookies) or {}
     user = cookies.get("user_id")
     if not user:
-        return "Error", 403
+        return render_template("cookiesetter.html")
     params = dict(request.args) or {}
     rounds = int(params.get("rounds", 3))
     images = random.sample(range(1, len(list(ANSWERS.keys())) + 1), rounds)
