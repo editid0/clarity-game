@@ -34,6 +34,7 @@ ANSWERS = {
     "14": "chef",
     "15": "pizza",
     "16": "burger",
+    "17": "clock",
 }
 letter_map = {}
 for index, word in ANSWERS.items():
@@ -63,7 +64,7 @@ def start():
         return "Error", 403
     params = dict(request.args) or {}
     rounds = int(params.get("rounds", 3))
-    images = random.sample(range(1, 17), rounds)
+    images = random.sample(range(1, len(list(ANSWERS.keys())) + 1), rounds)
     share_code_1 = "".join(random.choices(string.digits[1:], k=1))
     share_code_5 = "".join(random.choices(string.digits, k=5))
     share_code = share_code_1 + share_code_5
@@ -205,10 +206,31 @@ def user_guess(data):
     correct_answer = ANSWERS[str(current_image)]
     print(correct_answer)
     if text != correct_answer:
-        emit("guess_response", {"correct": False, "user": user}, to=game)
+        if step == 3:
+            emit(
+                "guess_response",
+                {
+                    "correct": False,
+                    "user": user,
+                    "start": correct_answer[0],
+                    "end": correct_answer[-1],
+                    "hint": True,
+                },
+                to=game,
+            )
+        else:
+            emit(
+                "guess_response",
+                {
+                    "correct": False,
+                    "user": user,
+                    "hint": False,
+                },
+                to=game,
+            )
         print("bad")
     else:
-        emit("guess_response", {"correct": True, "user": user}, to=game)
+        emit("guess_response", {"correct": True, "user": user, "hint": False}, to=game)
         index = games.index(gm)
         scores = games[index]["scores"]
         if not scores.get(user):

@@ -363,6 +363,9 @@
       border-color: color-mix(in oklab, var(--color-neutral-600) 50%, transparent);
     }
   }
+  .border-neutral-700 {
+    border-color: var(--color-neutral-700);
+  }
   .bg-amber-400 {
     background-color: var(--color-amber-400);
   }
@@ -463,6 +466,9 @@
   }
   .text-white {
     color: var(--color-white);
+  }
+  .uppercase {
+    text-transform: uppercase;
   }
   .underline {
     text-decoration-line: underline;

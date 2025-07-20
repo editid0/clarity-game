@@ -16,7 +16,8 @@
         onclick="document.getElementById('outerchat').classList.remove('hidden'); document.getElementById('outerchat').classList.add('flex')">Chat</button>
     <div class="absolute w-full h-full hidden items-center justify-center bg-white dark:bg-black top-0 left-0"
         id="outerchat">
-        <div class="w-[10cm] h-fit flex items-center justify-center flex-col">
+        <div
+            class="w-[10cm] h-fit flex items-center justify-center flex-col border-2 border-neutral-700 rounded-lg p-4">
             <p class="text-center text-xl">Chats</p>
             <div id="chatbox" class="w-3/4 max-h-[10cm] min-h-[10cm] overflow-y-scroll pr-1">
             </div>
@@ -65,7 +66,7 @@
     const chatinput = document.getElementById('chatinput')
     const notif = document.getElementById('notif')
 
-    const game_data_str = `{{ game| tojson | safe}}`
+    const game_data_str = `{{ game | tojson | safe}}`
     var time_left_notif = 0;
     var game_data = JSON.parse(game_data_str)
     share.innerText = game_data.share
@@ -73,6 +74,9 @@
     const socket = io();
     var connected = false;
     var user_map = {};
+    var has_hint = false;
+    var first_letter = '';
+    var last_letter = '';
     var chats = [
         {
             "name": "Clarity",
@@ -152,13 +156,32 @@
         var letters = game_data.letter_map[im + '']
         for (let i = 0; i < letters; i++) {
             var p = document.createElement('p')
-            p.innerText = '\u00A0'
+            if (has_hint) {
+                if (i === 0) {
+                    p.innerText = first_letter;
+                    p.style.textTransform = 'uppercase'
+                } else if (i === (letters - 1)) {
+                    p.innerText = last_letter;
+                } else {
+                    p.innerText = 'ㅤ'
+                }
+            } else {
+                p.innerText = 'ㅤ'
+            }
             p.classList.add('underline', 'text-6xl')
             div.appendChild(p);
         }
         gameplay.appendChild(div)
         var inputdiv = document.createElement('div')
         inputdiv.classList.add('w-full', 'flex', 'items-center', 'justify-center', 'flex-col', 'gap-2')
+        var guesses = document.createElement('p')
+        var left = 5 - current_step;
+        if (left > 1) {
+            guesses.innerText = 5 - current_step + ' guesses left.'
+        } else {
+            guesses.innerText = 'Last chance, here\'s a hint.'
+        }
+        inputdiv.appendChild(guesses)
         var input = document.createElement('input')
         input.type = 'text'
         input.id = 'guess'
@@ -176,6 +199,7 @@
         p.classList.add('dark:text-white')
         inputdiv.appendChild(p)
         gameplay.appendChild(inputdiv);
+        input.focus();
     }
     importUsersToUserMap();
 
@@ -241,6 +265,7 @@
             return
         }
         if (data.correct) {
+            has_hint = false;
             window['current_round']++;
             if (window['current_round'] > game_data.rounds) {
                 goToScores();
@@ -256,6 +281,11 @@
                 if (window['current_round'] > game_data.rounds) {
                     goToScores();
                 }
+            }
+            if (data.hint) {
+                has_hint = true;
+                first_letter = data.start;
+                last_letter = data.end;
             }
             showImage();
         }
