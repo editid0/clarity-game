@@ -218,5 +218,22 @@ def user_guess(data):
             scores[user] += points
 
 
+@socketio.on("chat")
+def on_chat(data):
+    print("got chat")
+    user = data.get("user")
+    text = data.get("text")
+    game = data.get("game")
+    if not user or not text or not game:
+        print("blank")
+        return
+    if not find_game(game):
+        print("no game")
+        return
+    text = text[:50]
+    socketio.emit("chat", {"user": user, "content": text}, to=game)
+    print("emitted")
+
+
 if __name__ == "__main__":
     socketio.run(app, host="0.0.0.0", port=6970, debug=True)

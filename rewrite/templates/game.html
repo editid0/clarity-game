@@ -12,6 +12,18 @@
 </head>
 
 <body class="dark:bg-neutral-950 dark:text-white">
+    <button class="absolute top-0 left-0 dark:bg-white dark:text-black bg-black text-white p-4 rounded-br-2xl"
+        onclick="document.getElementById('outerchat').classList.remove('hidden'); document.getElementById('outerchat').classList.add('flex')">Chat</button>
+    <div class="absolute w-full h-full hidden items-center justify-center bg-white dark:bg-black top-0 left-0"
+        id="outerchat">
+        <div class="w-[10cm] h-fit flex items-center justify-center flex-col">
+            <p class="text-center text-xl">Chats</p>
+            <div id="chatbox" class="w-3/4 max-h-[10cm] min-h-[10cm] overflow-y-scroll pr-1">
+            </div>
+            <input type="text" name="chatinput" id="chatinput" class="dark:bg-neutral-800 p-2 rounded-md"
+                placeholder="Send a chat.">
+        </div>
+    </div>
     <h1 class="text-5xl font-semibold text-center mt-4">Clarity</h1>
     <p class="text-xl text-center my-2">The game can be started once there are between 2 and 10 players.</p>
     <p class="text-center mb-2" id="sharer">To join, share: <span class="font-mono text-xl">{{URL}}/join/</span><span
@@ -39,6 +51,8 @@
     const gameplay = document.getElementById('gameplay')
     const renamer = document.getElementById('renamer')
     const sharer = document.getElementById('sharer')
+    const chatbox = document.getElementById('chatbox')
+    const chatinput = document.getElementById('chatinput')
 
     const game_data_str = `{{ game| tojson | safe}}`
     var game_data = JSON.parse(game_data_str)
@@ -47,6 +61,13 @@
     const socket = io();
     var connected = false;
     var user_map = {};
+    var chats = [
+        {
+            "name": "Clarity",
+            "text": "Communicate using this chat, maybe don't give hints?"
+        },
+    ];
+    renderChats();
 
     var current_round = 1;
     var current_step = 0;
@@ -79,6 +100,14 @@
             socket.emit('whois', { 'id': pl })
         }
     }
+    chatinput.addEventListener('keypress', (e) => {
+        if (e.code === "Enter") {
+            chats.push({ 'name': 'You', 'text': e.target.value });
+            renderChats();
+            socket.emit("chat", { user: getCookie('user_id'), text: e.target.value, game: game_data.id })
+            e.target.value = '';
+        }
+    })
     function showImage() {
         gameplay.innerHTML = ''
         const im = game_data.images[current_round - 1]
@@ -222,6 +251,33 @@
     }
     function goToScores() {
         window.location.href = `/game/${game_data.id}/scores`
+    }
+    socket.on("chat", function (data) {
+        if (data.user == getCookie('user_id')) {
+            return
+        }
+        var username = user_map[data.user];
+        var content = data.content;
+        chats.push({
+            "name": username,
+            "text": content,
+        })
+        renderChats();
+    })
+    function renderChats() {
+        chatbox.innerHTML = '';
+        for (const chat of chats) {
+            var div = document.createElement('div');
+            div.className = 'flex flex-col items-start justify-center bg-neutral-700 max-w-full p-2 rounded-lg my-2'
+            var name = document.createElement('p')
+            name.innerText = chat.name;
+            name.className = 'font-bold'
+            var content = document.createElement('p')
+            content.innerText = chat.text;
+            div.appendChild(name)
+            div.appendChild(content)
+            chatbox.appendChild(div)
+        }
     }
 </script>
 
