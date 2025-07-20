@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="/public/out.css" />
+</head>
+
+<body>
+    <h1 class="text-6xl text-center font-semibold">Scores</h1>
+    <p class="text-xl text-center">Currently, {{current}}/{{player_count}} have finished.</p>
+    <p class="text-md text-center">You can refresh to get the latest scores.</p>
+    <div
+        class="flex flex-col items-center justify-center w-1/4 min-w-[5cm] max-w-[30cm] mx-auto bg-neutral-200 rounded-xl p-4 gap-2 mt-2">
+        {% for score in scores %}
+        <div class="flex flex-row items-center justify-between w-full bg-neutral-300 p-2 rounded-md">
+            <p>{{score['name']}}</p>
+            <p>{{score['score']}}</p>
+        </div>
+        {% endfor %}
+</body>
+
+</html>

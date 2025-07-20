@@ -1,4 +1,11 @@
-from flask import Flask, render_template, send_from_directory, request, redirect
+from flask import (
+    Flask,
+    render_template,
+    send_from_directory,
+    request,
+    redirect,
+    Response,
+)
 from flask_socketio import SocketIO, join_room, send, emit
 from dotenv import load_dotenv
 import os, uuid, random, string
@@ -64,21 +71,26 @@ def start():
 
 @app.route("/join/<int:share>")
 def join_game(share):
-    # TODO, GENERATE A COOKIE FOR THE USER ID IF THERE ISN'T ONE
-    # Find the game
     game = next((game for game in games if game["share"] == str(share)), None)
     if not game:
         return "no game", 404
     if game["status"] > 0:
         return "Game started", 403
     cookies = dict(request.cookies) or {}
+    res = Response()
     user = cookies.get("user_id")
+    set_cookie = False
     if not user:
-        return "Error", 403
+        user = str(uuid.uuid4())
+        set_cookie = True
     index = games.index(game)
     players = games[index]["players"]
     if user not in players:
         games[index]["players"].append(user)
+    if set_cookie:
+        res = Response(redirect(f"/game/{game['id']}"))
+        res.set_cookie("user_id", user, 60 * 60 * 24 * 7)
+        return res
     return redirect(f"/game/{game['id']}")
 
 
@@ -94,6 +106,23 @@ def game_page(code):
     if user not in game["players"]:
         return "Not in this game", 403
     return render_template("game.html", game=game)
+
+
+@app.route("/game/<uuid:code>/scores")
+def game_scores(code):
+    code = str(code)
+    game = find_game(code)
+    if not game:
+        return "No game", 404
+    player_count = len(game["players"])
+    scores = []
+    for k, v in game["scores"].items():
+        username = user_map.get(k, "New User")
+        scores.append({"name": username, "score": v})
+    current_scores = len(scores)
+    return render_template(
+        "scores.html", scores=scores, player_count=player_count, current=current_scores
+    )
 
 
 @app.route("/public/<path:file>")
