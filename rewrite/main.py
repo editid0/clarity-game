@@ -17,16 +17,27 @@ app.config["SECRET_KEY"] = os.getenv("SECRET_KEY")
 socketio = SocketIO(app)
 games = []
 user_map = {}
-letter_map = {
-    "1": 4,
-    "2": 6,
-    "3": 5,
-    "4": 5,
-    "5": 7,
-    "6": 3,
-    "7": 3,
-    "8": 3,
+ANSWERS = {
+    "1": "duck",
+    "2": "forest",
+    "3": "beach",
+    "4": "plane",
+    "5": "volcano",
+    "6": "dog",
+    "7": "cat",
+    "8": "fox",
+    "9": "house",
+    "10": "school",
+    "11": "castle",
+    "12": "taxi",
+    "13": "airport",
+    "14": "chef",
+    "15": "pizza",
+    "16": "burger",
 }
+letter_map = {}
+for index, word in ANSWERS.items():
+    letter_map[index] = len(word)
 
 URL = os.getenv("URL")
 
@@ -52,7 +63,7 @@ def start():
         return "Error", 403
     params = dict(request.args) or {}
     rounds = int(params.get("rounds", 3))
-    images = random.sample(range(1, 9), rounds)
+    images = random.sample(range(1, 17), rounds)
     share_code_1 = "".join(random.choices(string.digits[1:], k=1))
     share_code_5 = "".join(random.choices(string.digits, k=5))
     share_code = share_code_1 + share_code_5
@@ -94,9 +105,7 @@ def join_game(share):
     if user not in players:
         games[index]["players"].append(user)
     if set_cookie:
-        res = Response(redirect(f"/game/{game['id']}"))
-        res.set_cookie("user_id", user, 60 * 60 * 24 * 7)
-        return res
+        return render_template("cookiesetter.html")
     return redirect(f"/game/{game['id']}")
 
 
@@ -189,21 +198,11 @@ def user_guess(data):
     step = data.get("step")
     points = 5 - step
     gm = find_game(game)
-    answers = {
-        "1": "duck",
-        "2": "forest",
-        "3": "beach",
-        "4": "plane",
-        "5": "volcano",
-        "6": "dog",
-        "7": "cat",
-        "8": "fox",
-    }
     text = text.lower()
     text = text[:15]
     print(step, text, round, gm["images"])
     current_image = gm["images"][round - 1]
-    correct_answer = answers[str(current_image)]
+    correct_answer = ANSWERS[str(current_image)]
     print(correct_answer)
     if text != correct_answer:
         emit("guess_response", {"correct": False, "user": user}, to=game)

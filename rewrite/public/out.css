@@ -347,6 +347,10 @@
     border-top-style: var(--tw-border-style);
     border-top-width: 0px;
   }
+  .border-r-8 {
+    border-right-style: var(--tw-border-style);
+    border-right-width: 8px;
+  }
   .border-neutral-300 {
     border-color: var(--color-neutral-300);
   }
@@ -519,6 +523,11 @@
   .\*\:text-center {
     :is(& > *) {
       text-align: center;
+    }
+  }
+  .dark\:border-neutral-800 {
+    @media (prefers-color-scheme: dark) {
+      border-color: var(--color-neutral-800);
     }
   }
   .dark\:bg-black {

@@ -19,7 +19,12 @@
     <div class="text-center mt-4 flex flex-col gap-2 w-1/4 min-w-[5cm] max-w-[30cm] mx-auto py-8 my-4">
         <h1 class="text-5xl font-semibold">Clarity</h1>
         <p class="text-xl">Click the button below to start a game, or read below to learn how to play.</p>
-        <a class="bg-neutral-800 text-white px-3 py-2 rounded-md" href="/start">Start game</a>
+        <a class="bg-neutral-800 text-white px-3 py-2 rounded-md" href="/start?rounds=3" id="start">Start game</a>
+        <select name="rounds" id="rounds" class="dark:bg-neutral-800 p-2 rounded-md border-r-8 dark:border-neutral-800">
+            <option value="3">3 Rounds</option>
+            <option value="5">5 Rounds</option>
+            <option value="10">10 Rounds</option>
+        </select>
     </div>
     <div class="py-8 my-4 text-center">
         <h2 class="text-3xl font-semibold">How to play</h2>
@@ -72,6 +77,10 @@
         const id = crypto.randomUUID();
         setCookie('user_id', id, 7)
     }
+    document.getElementById('rounds').addEventListener('change', function (e) {
+        var rounds = e.target.value;
+        document.getElementById('start').href = '/start?rounds=' + rounds;
+    })
 </script>
 
 </html>
