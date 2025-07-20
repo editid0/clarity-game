@@ -22,6 +22,16 @@
             </div>
             <input type="text" name="chatinput" id="chatinput" class="dark:bg-neutral-800 p-2 rounded-md"
                 placeholder="Send a chat.">
+            <button class="bg-neutral-200 text-black p-2 w-full rounded-lg mt-2"
+                onclick="document.getElementById('outerchat').classList.remove('flex'); document.getElementById('outerchat').classList.add('hidden')">
+                Close chat box
+            </button>
+        </div>
+    </div>
+    <div class="absolute w-full h-fit top-0 left-0 hidden items-center justify-center" id="notif">
+        <div
+            class="max-w-[5cm] w-full text-center bg-neutral-700/30 backdrop-blur-lg rounded-b-2xl border-2 border-neutral-600/50 border-t-0">
+            <p>New chat, press the button in the top left to view it.</p>
         </div>
     </div>
     <h1 class="text-5xl font-semibold text-center mt-4">Clarity</h1>
@@ -53,8 +63,10 @@
     const sharer = document.getElementById('sharer')
     const chatbox = document.getElementById('chatbox')
     const chatinput = document.getElementById('chatinput')
+    const notif = document.getElementById('notif')
 
     const game_data_str = `{{ game| tojson | safe}}`
+    var time_left_notif = 0;
     var game_data = JSON.parse(game_data_str)
     share.innerText = game_data.share
     console.log(game_data)
@@ -85,6 +97,21 @@
             startGame();
         }, 500);
     }
+
+    setInterval(() => {
+        if (time_left_notif > 0) {
+            time_left_notif -= 0.1;
+        }
+        if (time_left_notif > 0) {
+            notif.classList.remove('hidden')
+            notif.classList.remove('flex')
+            notif.classList.add('flex')
+        } else {
+            notif.classList.remove('hidden')
+            notif.classList.remove('flex')
+            notif.classList.add('hidden')
+        }
+    }, 100);
 
     renamer.addEventListener('keydown', function (e) {
         if (e.code === 'Enter') {
@@ -263,6 +290,7 @@
             "text": content,
         })
         renderChats();
+        time_left_notif = 5;
     })
     function renderChats() {
         chatbox.innerHTML = '';
