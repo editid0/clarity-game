@@ -22,6 +22,10 @@ letter_map = {
     "2": 6,
     "3": 5,
     "4": 5,
+    "5": 7,
+    "6": 3,
+    "7": 3,
+    "8": 3,
 }
 
 URL = os.getenv("URL")
@@ -48,7 +52,7 @@ def start():
         return "Error", 403
     params = dict(request.args) or {}
     rounds = int(params.get("rounds", 3))
-    images = random.sample(range(1, 5), rounds)
+    images = random.sample(range(1, 9), rounds)
     share_code_1 = "".join(random.choices(string.digits[1:], k=1))
     share_code_5 = "".join(random.choices(string.digits, k=5))
     share_code = share_code_1 + share_code_5
@@ -185,7 +189,16 @@ def user_guess(data):
     step = data.get("step")
     points = 5 - step
     gm = find_game(game)
-    answers = {"1": "duck", "2": "forest", "3": "beach", "4": "plane"}
+    answers = {
+        "1": "duck",
+        "2": "forest",
+        "3": "beach",
+        "4": "plane",
+        "5": "volcano",
+        "6": "dog",
+        "7": "cat",
+        "8": "fox",
+    }
     text = text.lower()
     text = text[:15]
     print(step, text, round, gm["images"])
