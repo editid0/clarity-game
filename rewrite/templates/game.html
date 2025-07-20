@@ -14,10 +14,12 @@
 <body class="dark:bg-neutral-950 dark:text-white">
     <h1 class="text-5xl font-semibold text-center mt-4">Clarity</h1>
     <p class="text-xl text-center my-2">The game can be started once there are between 2 and 10 players.</p>
-    <p class="text-center mb-2">To join, share: <span class="font-mono text-xl">{{URL}}/join/</span><span id="share"
-            class="font-mono text-xl"></span></p>
-    <div class="flex items-center justify-center w-full my-2">
-        <input type="text" name="rename" id="renamer" placeholder="Change name?">
+    <p class="text-center mb-2" id="sharer">To join, share: <span class="font-mono text-xl">{{URL}}/join/</span><span
+            id="share" class="font-mono text-xl"></span></p>
+    <div class="flex flex-col items-center justify-center w-full my-2 gap-2">
+        <input type="text" name="rename" id="renamer" placeholder="Change name?"
+            class="dark:bg-neutral-800 p-2 rounded-md">
+        <p>Press enter to submit new name</p>
     </div>
     <div id="playerlist"
         class="bg-neutral-200 dark:bg-neutral-800 rounded-xl w-1/4 min-w-[5cm] max-w-[30cm] h-fit mx-auto p-4 *:bg-neutral-300 dark:*:bg-neutral-700 *:m-2 *:p-2 *:rounded-lg *:text-center *:w-full flex flex-col items-center justify-center">
@@ -36,6 +38,7 @@
     const start = document.getElementById('start')
     const gameplay = document.getElementById('gameplay')
     const renamer = document.getElementById('renamer')
+    const sharer = document.getElementById('sharer')
 
     const game_data_str = `{{ game| tojson | safe}}`
     var game_data = JSON.parse(game_data_str)
@@ -80,11 +83,12 @@
         gameplay.innerHTML = ''
         const im = game_data.images[current_round - 1]
         // Hide share code, and start button
-        share.innerHTML = ''
+        sharer.innerHTML = ''
         start.style.display = 'none'
         // Add image to gameplay
         var img = document.createElement('img')
         img.src = '/public/im/' + im + '-' + blurlevel[current_step] + '.jpg'
+        img.style.borderRadius = '1rem'
         gameplay.appendChild(img)
         // Show letter count
         var div = document.createElement('div')
@@ -98,11 +102,11 @@
         }
         gameplay.appendChild(div)
         var inputdiv = document.createElement('div')
-        inputdiv.classList.add('w-full', 'flex', 'items-center', 'justify-center')
+        inputdiv.classList.add('w-full', 'flex', 'items-center', 'justify-center', 'flex-col', 'gap-2')
         var input = document.createElement('input')
         input.type = 'text'
         input.id = 'guess'
-        input.classList.add('bg-neutral-900', 'text-white', 'w-1/4', 'mx-auto', 'p-4')
+        input.classList.add('bg-neutral-900', 'text-white', 'w-1/4', 'mx-auto', 'p-4', 'rounded-lg')
         input.placeholder = 'Guess?'
         input.onkeydown = (e) => {
             if (e.code === "Enter") {
@@ -111,6 +115,10 @@
             }
         }
         inputdiv.appendChild(input);
+        var p = document.createElement('p');
+        p.innerText = 'Press enter to submit vote'
+        p.classList.add('dark:text-white')
+        inputdiv.appendChild(p)
         gameplay.appendChild(inputdiv);
     }
     importUsersToUserMap();

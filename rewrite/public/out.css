@@ -288,6 +288,9 @@
   .gap-2 {
     gap: calc(var(--spacing) * 2);
   }
+  .rounded-lg {
+    border-radius: var(--radius-lg);
+  }
   .rounded-md {
     border-radius: var(--radius-md);
   }
