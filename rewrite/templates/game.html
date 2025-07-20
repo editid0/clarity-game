@@ -107,12 +107,14 @@
             time_left_notif -= 0.1;
         }
         if (time_left_notif > 0) {
-            notif.classList.remove('hidden')
-            notif.classList.remove('flex')
+            if (notif.classList.contains('hidden')) {
+                notif.classList.remove('hidden')
+            }
             notif.classList.add('flex')
         } else {
-            notif.classList.remove('hidden')
-            notif.classList.remove('flex')
+            if (notif.classList.contains('flex')) {
+                notif.classList.remove('flex')
+            }
             notif.classList.add('hidden')
         }
     }, 100);
