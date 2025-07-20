@@ -70,7 +70,6 @@
     var time_left_notif = 0;
     var game_data = JSON.parse(game_data_str)
     share.innerText = game_data.share
-    console.log(game_data)
     const socket = io();
     var connected = false;
     var user_map = {};
@@ -124,6 +123,7 @@
             socket.emit('rename', { 'id': getCookie('user_id'), 'game': game_data.id, name: e.target.value })
         }
     })
+
     function importUsersToUserMap() {
         var players = game_data.players;
         for (const pl of players) {
@@ -133,6 +133,7 @@
             socket.emit('whois', { 'id': pl })
         }
     }
+
     chatinput.addEventListener('keypress', (e) => {
         if (e.code === "Enter") {
             chats.push({ 'name': 'You', 'text': e.target.value });
@@ -141,18 +142,16 @@
             e.target.value = '';
         }
     })
+
     function showImage() {
         gameplay.innerHTML = ''
         const im = game_data.images[current_round - 1]
-        // Hide share code, and start button
         sharer.innerHTML = ''
         start.style.display = 'none'
-        // Add image to gameplay
         var img = document.createElement('img')
         img.src = '/public/im/' + im + '-' + blurlevel[current_step] + '.jpg'
         img.style.borderRadius = '1rem'
         gameplay.appendChild(img)
-        // Show letter count
         var div = document.createElement('div')
         div.classList.add('flex', 'flex-row', 'items-end', 'justify-center', 'gap-1')
         var letters = game_data.letter_map[im + '']
@@ -203,6 +202,7 @@
         gameplay.appendChild(inputdiv);
         input.focus();
     }
+
     importUsersToUserMap();
 
     function updatePlayerList() {
@@ -240,7 +240,6 @@
         socket.emit('start_game', { 'game': game_data.id, 'user': getCookie('user_id') })
     }
 
-
     socket.on('new_user', function (data) {
         if (!game_data.players.includes(data.user)) {
             game_data.players.push(data.user)
@@ -258,10 +257,12 @@
         user_map[data.id] = data.name;
         updatePlayerList();
     })
+
     socket.on('start', function (data) {
         game_data = data;
         showImage(game_data.images[game_data.status - 1], game_data.step)
     })
+
     socket.on('guess_response', function (data) {
         if (data.user !== getCookie('user_id')) {
             return
@@ -308,9 +309,11 @@
         }
         return "";
     }
+
     function goToScores() {
         window.location.href = `/game/${game_data.id}/scores`
     }
+
     socket.on("chat", function (data) {
         if (data.user == getCookie('user_id')) {
             return
@@ -324,6 +327,7 @@
         renderChats();
         time_left_notif = 5;
     })
+
     function renderChats() {
         chatbox.innerHTML = '';
         for (const chat of chats) {
